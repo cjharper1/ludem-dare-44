@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+def build(bld):
+    bld.program(
+        use = ['sfml', 'Box2D'],
+        source = bld.path.ant_glob('Code/**/*.cpp'),
+        includes = 'Code',
+        target = 'ExampleGame')

@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+import os
+from waflib import Utils
+
+def build(bld):
+    # FIND THE GLEW LIBRARY FILE.
+    # The static version is linked againsted. There is no debug version of this library
+    # so the release version is always linked against.
+    bld.read_stlib('glew32s', paths = [bld.path.make_node('lib/release/x64/')])
+    
+    # PACKAGE THE GLEW LIBRARY FOR USAGE IN OTHER APPLICATIONS.
+    bld(
+        export_includes = 'includes',
+        use = ['glew32s'],
+        name = 'glew')

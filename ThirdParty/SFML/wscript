@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+import os
+from waflib import Utils
+
+def build(bld):
+    # FIND ANY EXTERNAL LIBRARIES SFML DEPENDS ON.
+    EXTERNAL_LIBRARIES = [
+        'flac',
+        'freetype',
+        'ogg',
+        'openal32',
+        'vorbis']
+    external_library_path = bld.path.make_node('extlibs/msvc/x64/').abspath()
+    for EXTERNAL_LIBRARY_NAME in EXTERNAL_LIBRARIES:
+        bld.read_stlib(EXTERNAL_LIBRARY_NAME, paths = [external_library_path])
+    
+    # BUILD THE SFML LIBRARY.
+    bld.stlib(
+        source = bld.path.ant_glob('src/**/*.cpp'),
+        includes = ['src', 'include', 'extlibs/headers', 'extlibs/headers/AL', 'extlibs/headers/stb_image', 'extlibs/headers/freetype2'],
+        export_includes = ['include'],
+        defines = ['SFML_STATIC', 'SFML_NO_DEPRECATED_WARNINGS', 'UNICODE', '_UNICODE'],
+        export_defines = ['SFML_STATIC'],
+        use = EXTERNAL_LIBRARIES + ['glew'],
+        target = 'sfml')

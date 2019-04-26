@@ -1,0 +1,38 @@
+Before building the example, you will need to install some prerequisites:
+1. Install Visual Studio 2019. This can be obtained from https://visualstudio.microsoft.com/downloads/
+When installing, make sure to select these categories:
+    - Desktop development with C++
+        The following options are enabled by default with this category. If desired, they can be disabled to save disk space:
+            i. Live Share
+            ii. Test Adapter for Boost.Test
+            iii. Test Adapter for Google.Test
+            iv. C++ CMake tools for Windows
+    - Game development with C++
+2. Install Python. This can be obtained from https://www.python.org/downloads/ 
+The latest version of Python 2.7 is reccommended. It may be possible to use version 3, but it has not been tested.
+Make sure you add Python to your PATH when installing. This is one of the options in the installer and is unchecked by default.
+
+The example should now be ready to build. The next section will describe how to do that.
+
+Waf is used as the build system for this example. For more information on waf see https://waf.io/book/
+Before executing a build with waf, it must be configured. Configuring waf instructs it to find compilers on your system that are
+needed during the build process.
+How to configure waf:
+    1. Open a command prompt to the root of the repository.
+    2. Configure waf using 'waf configure --variant <build_variant_name> [--symbols] [--optimize]'
+        a. The '--variant' argument allows you to specify which sub-folder you want builds of this variant placed into.
+           This is a required argument. Waf outputs all builds to a 'build' folder in the top level of the repository. The 
+           <build_variant_name> determines the name of the sub-folder outputs of builds conducted with this variant are placed in.
+        b. The '--symbols' argument is optional. It determines whether debug symbols will be generated for builds.
+        c. The '--optimize' argument is optional. It determines whether the application will be optimized for release.
+        
+        NOTE: Both --symbols and --optimize can be specified if desired. However, this will make the application more difficult to debug.
+        EXAMPLE: 'waf configure --variant debug --symbols' or 'waf configure --variant release --optimize'
+        
+ Now that waf has been configured, it can be used for builds. Re-configuring is not necessary unless you want to change your build variant settings.
+ How to build with waf:
+    1. Open a command prompt to the root of the repository.
+    2. Use the command 'waf build --target <target_project>' to build a project.
+    3. You should find the outputs in '//build/<build_variant_name>/<target_project_folder>/'.
+    NOTE: // is used to indicate the root of this repository.
+    EXAMPLE: 'waf build --target ExampleGame' builds the example project in this repository. This would be output to //build/<variant_name>/ExampleGame/

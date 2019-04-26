@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+def build(bld):
+    bld.stlib(
+        source = bld.path.ant_glob('Code/**/*.cpp'),
+        includes = ['Code'],
+        export_includes = ['Code'],
+        target = 'Box2D')

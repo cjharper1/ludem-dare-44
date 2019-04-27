@@ -12,6 +12,8 @@ When installing, make sure to select these categories:
 The latest version of Python 2.7 is reccommended. It may be possible to use version 3, but it has not been tested.
 Make sure you add Python to your PATH when installing. This is one of the options in the installer and is unchecked by default.
 
+3. Install the jinja2 Python module by running 'python -m pip install jinja2' in a command prompt.
+
 The example should now be ready to build. The next section will describe how to do that.
 
 Waf is used as the build system for this example. For more information on waf see https://waf.io/book/

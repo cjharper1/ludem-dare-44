@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build;CopyReferencedNativeBinaries" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProductVersion></ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+        <AssemblyName>{{ project.GetOutputName() }}</AssemblyName>
+        <ProjectGuid>{{ '{%s}' % project.GetUuid() }}</ProjectGuid>
+        <OutputType>{{ project.GetOutputType() }}</OutputType>
+        <OutputPath>{{ project.GetOutputDir().abspath() }}</OutputPath>
+        <IntermediateOutputPath>.</IntermediateOutputPath>
+    </PropertyGroup>
+    {# ADD THE APPLICATION MANIFEST. #}
+    {% if project.GetApplicationManifest() %}
+    <PropertyGroup>
+        <ApplicationManifest>{{ project.GetApplicationManifest().abspath() }}</ApplicationManifest>
+    </PropertyGroup>
+    {% endif %}
+    <PropertyGroup>
+        <WarningLevel>4</WarningLevel>
+        <DefineConstants></DefineConstants>
+        <LangVersion>6</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+        {# ADD THE DEFINED CONSTANTS. #}
+        <DefineConstants>{{ ';'.join(project.GetDefinedConstants()) }}</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        {# ADD THE REFERENCED SYSTEM DLLS. #}
+        {% for referenced_system_dll in project.GetReferencedSystemDlls() %}
+        <Reference Include="{{ referenced_system_dll }}"/>
+        {% endfor %}
+        {# ADD THE REFERENCED MANAGED BINARIES. #}
+        {% for referenced_dll in project.GetReferencedManagedBinaries() %}
+        <Reference Include="{{ referenced_dll.abspath() }}">
+            <Private>true</Private>
+        </Reference>
+        {% endfor %}
+        {# ADD THE REFERENCED UNMANAGED BINARIES. #}
+        {% for referenced_dll in project.GetReferencedUnmanagedBinaries() %}
+        <NativeReference Include="{{ referenced_dll.abspath() }}">
+            <Private>true</Private>
+        </NativeReference>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {# ADD COMPILED FILES. #}
+        {% for compiled_file in project.GetCompiledFiles() %}
+        <Compile Include="{{ compiled_file.Path }}"/>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {# ADD CONTENT FILES. #}
+        {% for content_file in project.GetContentFiles() %}
+        <Content Include="{{ content_file.abspath() }}"/>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {# ADD EMBEDDED RESOURCES. #}
+        {% for embedded_resource in project.GetEmbeddedResources() %}
+        <EmbeddedResource Include="{{ embedded_resource.abspath() }}"/>
+        {% endfor %}
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <Target Name="CopyReferencedNativeBinaries">
+        {# Managed binaries are copied automatically by MSBuild, but unmanaged (native) binaries are not. #}
+        {# Since referenced native binaries are still often needed for .NET programs to actually run #}
+        {# (for example, a .NET DLL may call into a native DLL), the native binaries are copied to the #}
+        {# output directory to avoid needing to manually copy such DLLs to run a program. #}
+        <Copy SourceFiles="@(NativeReference)" DestinationFolder="$(OutputPath)"/>
+    </Target>
+</Project>

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        {% for filter in project_filters.GetDirs() %}
+        <Filter Include="{{ filter.Path }}">
+            <UniqueIdentifier>{{ '{%s}' % filter.Id }}</UniqueIdentifier>
+        </Filter>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {% for include_file in project.GetHeaderFiles() %}
+        <ClInclude Include="{{ include_file.abspath() }}">
+            <Filter>{{ project_filters.GetVirtualDir(include_file).Path }}</Filter>
+        </ClInclude>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {% for source_file in project.GetSourceFiles() %}
+        <ClCompile Include="{{ source_file.abspath() }}">
+            <Filter>{{ project_filters.GetVirtualDir(source_file).Path }}</Filter>
+        </ClCompile>
+        {% endfor %}
+    </ItemGroup>
+</Project>

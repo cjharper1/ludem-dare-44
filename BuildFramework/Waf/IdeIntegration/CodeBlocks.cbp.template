@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+    <FileVersion major="1" minor="6" />
+    <Project>
+        <Option title="{{ project.GetName() }}" />
+        <Option makefile_is_custom="1" />
+        <Build>
+            <Target title="{{ project.GetBuildVariant() }}">
+                <Option output="{{ project.GetOutputFile().abspath() }}" prefix_auto="1" extension_auto="1" />
+                <Option working_dir="{{ project.GetDebugDir().abspath() }}" />
+                <Option type="1" />
+                <MakeCommands>
+                    <Build command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+                    <CompileFile command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+                    <Clean command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+                    <DistClean command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+                </MakeCommands>
+            </Target>
+        </Build>
+        <Compiler>
+        {% for definition in project.GetPreProcessorDefinitions() %}
+            <Add option="-D{{ definition.replace('"', '&quot;') }}" />
+        {% endfor %}
+        {% for include_dir in project.GetIncludeDirs() %}
+            <Add directory="{{ include_dir.abspath() }}" />
+        {% endfor %}
+        </Compiler>
+        {% for header_file in project.GetHeaderFiles() %}
+        <Unit filename="{{ header_file.abspath() }}"  >
+            <Option virtualFolder="{{ virtual_dir.GetVirtualDir(header_file).Path }}" />
+        </Unit>
+        {% endfor %}
+        {% for source_file in project.GetSourceFiles() %}
+        <Unit filename="{{ source_file.abspath() }}" >
+            <Option virtualFolder="{{ virtual_dir.GetVirtualDir(source_file).Path }}" />
+        </Unit>
+        {% endfor %}
+    </Project>
+</CodeBlocks_project_file>

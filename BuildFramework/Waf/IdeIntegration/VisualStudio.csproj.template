@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Configuration>{{ project.GetBuildVariant() }}</Configuration>
+        <Platform>AnyCPU</Platform>
+        <ProductVersion></ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+        <AssemblyName>{{ project.GetOutputName() }}</AssemblyName>
+        <ProjectGuid>{{ '{%s}' % project.GetUuid() }}</ProjectGuid>
+        <OutputType>{{ project.GetOutputType() }}</OutputType>
+        <OutputPath>{{ project.GetOutputDir().abspath() }}</OutputPath>
+    {# SET THE NUNIT GUI AS THE START PROGRAM IF NECESSARY. #}
+    {# It is only set if the project is an Nunit tester, and the Nunit GUI is found. #}
+    {% if nunit_gui_exe != None %}
+        <StartAction>Program</StartAction>
+        <StartProgram>{{ nunit_gui_exe }}</StartProgram>
+        <StartArguments>{{ project.GetOutputName() + '.dll' }}</StartArguments>
+    {% endif %}
+    </PropertyGroup>
+    {# ADD THE APPLICATION MANIFEST. #}
+    {% if project.GetApplicationManifest() %}
+    <PropertyGroup>
+        <ApplicationManifest>{{ project.GetApplicationManifest().abspath() }}</ApplicationManifest>
+    </PropertyGroup>
+    {% endif %}
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '{{ project.GetBuildVariant() }}|AnyCPU' ">
+        <WarningLevel>4</WarningLevel>
+        {# ADD THE DEFINED CONSTANTS. #}
+        <DefineConstants>{{ ';'.join(project.GetDefinedConstants()) }}</DefineConstants>
+        <CustomCommands>
+            <CustomCommands>
+                <Command type="Build" command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+            </CustomCommands>
+        </CustomCommands>
+        <LangVersion>6</LangVersion>
+        <Prefer32Bit>false</Prefer32Bit>
+    </PropertyGroup>
+    <ItemGroup>
+        {# ADD THE REFERENCED SYSTEM DLLS. #}
+        {% for referenced_system_dll in project.GetReferencedSystemDlls() %}
+        <Reference Include="{{ referenced_system_dll }}"/>
+        {% endfor %}
+        {# ADD THE REFERENCED MANAGED BINARIES. #}
+        {# Only the DLL name is displayed in the IDE to increase readability. #}
+        {% for referenced_dll in project.GetReferencedManagedBinaries() %}
+        <Reference Include="{{ referenced_dll.name }}">
+            <HintPath>{{ referenced_dll.abspath() }}</HintPath>
+        </Reference>
+        {% endfor %}
+        {# ADD THE REFERENCED UNMANAGED BINARIES. #}
+        {% for referenced_dll in project.GetReferencedUnmanagedBinaries() %}
+        <NativeReference Include="{{ referenced_dll.name }}">
+            <HintPath>{{ referenced_dll.abspath() }}</HintPath>
+        </NativeReference>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {# ADD COMPILED FILES. #}
+        {% for compiled_file in project.GetCompiledFiles() %}
+        <Compile Include="{{ compiled_file.Path }}"  >
+            {# The directory structure is preserved in the IDE to increase readability. #}
+            <Link>{{ compiled_file.LinkPath }}</Link>
+            {# Generated files are hidden in the IDE to increase readability. #}
+            <Visible>{{ compiled_file.Visible }}</Visible>
+        </Compile>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {# ADD CONTENT FILES. #}
+        {% for content_file in project.GetContentFiles() %}
+        <Content Include="{{ content_file.path_from(project.GetOutputDir()) }}"  >
+            {# The directory structure is preserved in the IDE to increase readability. #}
+            <Link>{{ content_file.path_from(project.GetSourceDir()) }}</Link>
+            {# Generated files are hidden in the IDE to increase readability. #}
+            <Visible>{{ not content_file.is_child_of(build_dir) }}</Visible>
+        </Content>
+        {% endfor %}
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <Target Name="Build">
+        <Exec Command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+    </Target>
+</Project>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Configuration>{{ project.GetBuildVariant() }}</Configuration>
+        <Platform>AnyCpu</Platform>
+        <ProductVersion></ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+        <AssemblyName>{{ project.GetOutputName() }}</AssemblyName>
+        <ProjectGuid>{{ '{%s}' % project.GetUuid() }}</ProjectGuid>
+        <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+        <OutputType>{{ project.GetOutputType() }}</OutputType>
+        <OutputPath>bin\</OutputPath>
+        <UseIISExpress>false</UseIISExpress>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '{{ project.GetBuildVariant() }}|AnyCpu' ">
+        <WarningLevel>4</WarningLevel>
+        {# ADD THE DEFINED CONSTANTS. #}
+        <DefineConstants>{{ ';'.join(project.GetDefinedConstants()) }}</DefineConstants>
+        <CustomCommands>
+            <CustomCommands>
+                <Command type="Build" command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+            </CustomCommands>
+        </CustomCommands>
+    </PropertyGroup>
+    <ItemGroup>
+        {# ADD THE REFERENCED SYSTEM DLLS. #}
+        {% for referenced_system_dll in project.GetReferencedSystemDlls() %}
+        <Reference Include="{{ referenced_system_dll }}"/>
+        {% endfor %}
+        {# ADD THE REFERENCED MANAGED BINARIES. #}
+        {# Only the DLL name is displayed in the IDE to increase readability. #}
+        {% for referenced_dll in project.GetReferencedManagedBinaries() %}
+        <Reference Include="{{ referenced_dll.name }}">
+            <HintPath>{{ referenced_dll.abspath() }}</HintPath>
+        </Reference>
+        {% endfor %}
+        {# ADD THE REFERENCED UNMANAGED BINARIES. #}
+        {% for referenced_dll in project.GetReferencedUnmanagedBinaries() %}
+        <NativeReference Include="{{ referenced_dll.name }}">
+            <HintPath>{{ referenced_dll.abspath() }}</HintPath>
+        </NativeReference>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {# ADD COMPILED FILES. #}
+        {% for compiled_file in project.GetCompiledFiles() %}
+        <Compile Include="{{ compiled_file.Path }}"  >
+            {# The directory structure is preserved in the IDE to increase readability. #}
+            <Link>{{ compiled_file.LinkPath }}</Link>
+            {# Generated files are hidden in the IDE to increase readability. #}
+            <Visible>{{ compiled_file.Visible }}</Visible>
+            {# Check whether the file is dependent upon another file. #}
+            {% set is_dependent_upon_another_file = compiled_file.DependentUponFile %}
+            {% if is_dependent_upon_another_file %}
+            <DependentUpon>{{ compiled_file.DependentUponFile }}</DependentUpon>
+            {% endif %}
+            {# Check whether the file subtype is available. #}
+            {% set subtype_available = compiled_file.SubType %}
+            {% if subtype_available %}
+            <SubType>{{ compiled_file.SubType }}</SubType>
+            {% endif %}
+        </Compile>
+        {% endfor %}
+    </ItemGroup>
+    <ItemGroup>
+        {# ADD CONTENT FILES. #}
+        {% for content_file in project.GetContentFiles() %}
+        <Content Include="{{ content_file.abspath() }}"  >
+            {# The directory structure is preserved in the IDE to increase readability. #}
+            <Link>{{ content_file.path_from(project.GetSourceDir()) }}</Link>
+            {# Generated files are hidden in the IDE to increase readability. #}
+            <Visible>{{ not content_file.is_child_of(build_dir) }}</Visible>
+        </Content>
+        {% endfor %}
+    </ItemGroup>
+    <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+    <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
+    <ProjectExtensions>
+        <VisualStudio>
+            <FlavorProperties GUID="{{ '{%s}' % project.GetUuid() }}">
+                <WebProjectProperties>
+                    <UseIIS>False</UseIIS>
+                    <AutoAssignPort>True</AutoAssignPort>
+                    <DevelopmentServerPort>61465</DevelopmentServerPort>
+                    <DevelopmentServerVPath>/</DevelopmentServerVPath>
+                    <IISUrl></IISUrl>
+                    <NTLMAuthentication>False</NTLMAuthentication>
+                    <UseCustomServer>False</UseCustomServer>
+                    <CustomServerUrl></CustomServerUrl>
+                    <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+                </WebProjectProperties>
+            </FlavorProperties>
+        </VisualStudio>
+    </ProjectExtensions>
+    <Target Name="Build">
+        <Exec Command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+    </Target>
+</Project>

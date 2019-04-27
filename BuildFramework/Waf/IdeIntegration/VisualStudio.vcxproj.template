@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+    <ItemGroup Label="ProjectConfigurations">
+        <ProjectConfiguration Include="{{ project.GetBuildVariant() }}|Win32">
+            <Configuration>{{ project.GetBuildVariant() }}</Configuration>
+            <Platform>Win32</Platform>
+        </ProjectConfiguration>
+    </ItemGroup>
+    <PropertyGroup Label="Globals">
+        <VCProjectVersion>16.0</VCProjectVersion>
+        <ProjectGuid>{{ '{%s}' % project.GetUuid() }}</ProjectGuid>
+        <ProjectName>{{ project.GetName() }}</ProjectName>
+        <PlatformToolset>v142</PlatformToolset>
+        <TargetPath>{{ project.GetOutputFile().abspath() }}</TargetPath>
+        <LocalDebuggerWorkingDirectory>
+            {{ project.GetDebugDir().abspath() }}
+        </LocalDebuggerWorkingDirectory>
+    </PropertyGroup>
+    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='{{ project.GetBuildVariant() }}|Win32'">
+        <ClCompile>
+            <PreprocessorDefinitions>
+            {% for definition in project.GetPreProcessorDefinitions() %}
+                {{ definition + ';' }}
+            {% endfor %}
+            
+            {# The following defines are implicitly declared by MSVC. They are only meant to be internally used by
+             the MSVC std library. Defining them externally could cause unexpected behavior in the standard libraries. Therefore, 
+             they are not included in the waf configuration. The above block only writes out defines known by waf which means, these
+             defines must be explicitly written here so intellisense will know they are available for use. #}
+            _HAS_CXX17;
+            </PreprocessorDefinitions>
+            <AdditionalIncludeDirectories>
+            {% for include_dir in project.GetIncludeDirs() %}
+                {{ include_dir.abspath() + ';' }}
+            {% endfor %}
+            </AdditionalIncludeDirectories>
+        </ClCompile>
+    </ItemDefinitionGroup>
+    <ItemGroup>
+        {% for header_file in project.GetHeaderFiles() %}
+        <ClInclude Include="{{ header_file.abspath() }}" />
+        {% endfor %}
+        {% for source_file in project.GetSourceFiles() %}
+        <ClCompile Include="{{ source_file.abspath() }}" />
+        {% endfor %}
+    </ItemGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+    <Target Name="Build">
+        <Exec Command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ project.GetName() }}" />
+    </Target>
+</Project>

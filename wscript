@@ -89,6 +89,9 @@ class CustomLogFormatter(Logs.formatter):
 ## This runs before every command.
 ## \param[in]   opt - The current options context.
 def options(opt):
+    # LOAD CUSTOM PLUGINS AND COMMANDS.
+    opt.load('Waf', tooldir = 'BuildFramework')
+    
     # ADD AN OPTION TO ISOLATE BUILD OUTPUTS BASED ON SETTINGS.
     # This option is defaulted based on the last known value, and can be used
     # with any command (not just build).
@@ -136,6 +139,9 @@ def options(opt):
 ## Initializes the current command context. This runs before every waf command.
 ## \param[in]   command_context - The command context being initialized.
 def init(command_context):
+    # LOAD CUSTOM PLUGINS AND COMMANDS.
+    command_context.load('Waf', tooldir = 'BuildFramework')
+    
     # SET WAF TO LOG WARNINGS AND ERRORS WITH CUSTOM COLORS.
     Logs.log.handlers[0].setFormatter(CustomLogFormatter())
     
@@ -177,7 +183,12 @@ def init(command_context):
 ## Configures the build directory. In practice, this will configure options for a specific build variant that can be reused for all builds in that variant.
 ## \param[in]   conf - The configuration context.
 def configure(conf):
-    print Options.options.variant
+    # LOAD CUSTOM PLUGINS AND COMMANDS.
+    conf.load('Waf', tooldir = 'BuildFramework')
+    
+    # EXECUTE ANY CONFIGURATION COMMANDS NECESSARY FOR CUSTOM PLUGINS AND COMMANDS.
+    conf.recurse(os.listdir(conf.path.abspath()), mandatory = False)
+    
     # SET THE VARIANT TO USE FOR ALL BUILDS.
     conf.setenv(Options.options.variant)
     
@@ -282,8 +293,8 @@ def configure(conf):
             conf.env.append_value('CXXFLAGS', '-g')
 
     elif using_visual_studio:
-        # ENSURE THE LATEST VERSION OF THE C STD LIBRARY IS USED.
-        conf.env.append_value('CXXFLAGS', '/std:c++latest')
+        # Use C++ 17 features.
+        conf.env.append_value('CXXFLAGS', '/std:c++17')
         
         # Enable stricter warnings for C++ code.
         # The flag is not applied to C code yet because any C warnings will come from third-party
@@ -381,5 +392,15 @@ def configure(conf):
                 ['/DEBUG', '/MAP', '/MAPINFO:EXPORTS'])
     
 def build(bld):
+    # CHECK FOR MISSPELLED TARGETS AND OFFER SUGGESTIONS.
+    bld.load('Waf', tooldir = 'BuildFramework')
+    from Waf.Utilities import GetTargetProjects
+    bld.add_pre_fun(GetTargetProjects)
+    
+    # PRINT THE CURRENT SETTINGS USED FOR THIS BUILD.
+    from Waf.Utilities import PrintWafSettings
+    bld.add_pre_fun(PrintWafSettings)
+    
+    # RECUSE INTO SUB-DIRECTORIES TO FIND BUILD TARGETS.
     bld.recurse(os.listdir(bld.path.abspath()), mandatory=False)
     

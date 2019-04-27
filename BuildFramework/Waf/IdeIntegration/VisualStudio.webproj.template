@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Configuration>{{ project.GetBuildVariant() }}</Configuration>
+        <Platform>Any CPU</Platform>
+        <ProductVersion></ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+        <AssemblyName>{{ project.GetName() }}</AssemblyName>
+        <ProjectGuid>{047D18D0-0A6E-4B38-A2DD-AC2965601447}</ProjectGuid>
+        <OutputType>{{ project.GetOutputType() }}</OutputType>
+        <OutputPath>{{ project.GetSourceDir().make_node('bin').abspath() }}</OutputPath>
+        <ReferencedUserControlsDir>{{ project.GetSourceDir().abspath() }}\Controls</ReferencedUserControlsDir>
+    </PropertyGroup>
+    <ItemGroup>
+        {# ADD THE REFERENCED MANAGED BINARIES. #}
+        {% for referenced_dll in project.GetReferencedManagedBinaries() %}
+        <Reference Include="{{ referenced_dll.abspath() }}" />
+        {% endfor %}
+        {# ADD THE REFERENCED UNMANAGED BINARIES. #}
+        {% for referenced_dll in project.GetReferencedUnmanagedBinaries() %}
+        <NativeReference Include="{{ referenced_dll.abspath() }}" />
+        {% endfor %}
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <Target Name="Build">
+        {# BUILD THE WEBSITE DEPENDENCIES. #}
+        {# Visual Studio will build the Web site. #}
+        <Exec Command="&quot;{{ python_exe_path }}&quot; &quot;{{ waf_script_path }}&quot; build --variant {{ project.GetBuildVariant() }} --targets {{ ','.join(project.GetReferencedProjects()) }}" />
+        
+        {# REMOVE ANY REFERENCED USER CONTROLS DIRECTORY #}
+        {# This ensures that old files are not used for this build. #}
+        <RemoveDir Directories="$(ReferencedUserControlsDir)"/>
+        
+        {# COPY THE USER CONTROLS FROM DEPENDENT PROJECTS #}
+        {# If this project depends on any user control libraries, then it needs the user control
+        .ascx files to be in its source directory in order to use the user controls and before
+        it can be successfully built. #}
+        {% for referenced_project_source_dir in project.GetAspDotNetReferencedSourceDirs() %}
+        {# The parent of the referenced project's source directory is used here in order
+        to include the project name when the preserving the directory structure when copying. #}
+        <CreateItem Include="{{ referenced_project_source_dir.parent.abspath() }}\**\*.ascx">
+            <Output TaskParameter="Include" ItemName="ReferencedUserControls" />
+        </CreateItem>
+        <Copy 
+            SourceFiles="@(ReferencedUserControls)"
+            DestinationFiles="@(ReferencedUserControls->'$(ReferencedUserControlsDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+        {% endfor %}
+        
+        {# COPY THE REFERENCED BINARIES. #}
+        <RemoveDir Directories="$(OutputPath)"/>
+        <Copy SourceFiles="@(Reference)" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="@(NativeReference)" DestinationFolder="$(OutputPath)"/>
+        
+        {# COPY THE EXECUTABLE FILE FOR THE COMPILER THAT CAN COMPILE C# 6.0 CODE AND ITS SUPPORTING FILES. #}
+        <ItemGroup>
+            <LatestVersionTools Include="$(MSBuildToolsPath)\*" />
+        </ItemGroup>
+        <MakeDir Directories="$(OutputPath)\roslyn" />
+        <Copy SourceFiles="@(LatestVersionTools)" DestinationFolder="$(OutputPath)\roslyn" />
+
+        {# COPY THE WEB CONFIG AND SITEMAP. #}
+        {# These files are copied into the source Web directory so that developers can debug within Visual Studio. #}
+        <Copy
+            SourceFiles="{{ project.GetWebConfig().abspath() }}"
+            DestinationFiles=" {{ project.GetSourceDir().abspath() }}\Web.config"
+        />
+        
+        <Copy
+            SourceFiles="{{ project.GetWebSitemap().abspath() }}"
+            DestinationFiles="{{ project.GetSourceDir().abspath() }}\Web.sitemap"
+         />
+    </Target>
+</Project>

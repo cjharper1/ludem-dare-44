@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+{% for project in projects %}
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{ project.Name }}", "{{ project.Name + '.csproj' }}", "{{ '{%s}' % project.Id.upper() }}"
+EndProject
+{% endfor %}
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		{{ build_variant }}|Any CPU = {{ build_variant }}|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+	{% for project in projects %}
+		{{ '{%s}' % project.Id.upper() }}.{{ build_variant }}|Any CPU.ActiveCfg = {{ build_variant }}|Any CPU
+		{{ '{%s}' % project.Id.upper() }}.{{ build_variant }}|Any CPU.Build.0 = {{ build_variant }}|Any CPU
+	{% endfor %}
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

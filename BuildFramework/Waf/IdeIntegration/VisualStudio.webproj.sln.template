@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{ project.GetName() }}", "{{ '%s.csproj' % project.GetName() }}", "{047D18D0-0A6E-4B38-A2DD-AC2965601447}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Web", "{{ project.GetSourceDir().abspath() }}", "{{ '{%s}' % project.GetUuid().upper() }}"
+	ProjectSection(WebsiteProperties) = preProject
+		SccProjectName = ""
+		SccAuxPath = ""
+		SccLocalPath = ""
+		SccProvider = ""
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.6"
+		Debug.AspNetCompiler.VirtualPath = "/DummyPath"
+		Debug.AspNetCompiler.PhysicalPath = "{{ project.GetSourceDir().abspath() }}"
+		Debug.AspNetCompiler.TargetPath = "{{ project.GetWebStagingDir().abspath() }}"
+		Debug.AspNetCompiler.Updateable = "false"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		VWDPort = "51787"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{047D18D0-0A6E-4B38-A2DD-AC2965601447} = {047D18D0-0A6E-4B38-A2DD-AC2965601447}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		{{ project.GetBuildVariant() }}|Any CPU = {{ project.GetBuildVariant() }}|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{{ '{%s}' % project.GetUuid().upper() }}.{{ project.GetBuildVariant() }}|Any CPU.ActiveCfg = Debug|Any CPU
+		{047D18D0-0A6E-4B38-A2DD-AC2965601447}.{{ project.GetBuildVariant() }}|Any CPU.ActiveCfg = Debug|Any CPU
+		{047D18D0-0A6E-4B38-A2DD-AC2965601447}.{{ project.GetBuildVariant() }}|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

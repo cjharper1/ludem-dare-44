@@ -1,22 +1,32 @@
-#include <optional>
 #include "SFML/Graphics.hpp"
 #include "SFML/System.hpp"
-#include "Box2D/Box2D.h"
+#include "Player.h"
+#include "StageHazard.h"
+#include "WorldMap.h"
 
 int main()
 {
-    // CREATE THE MAIN WINDOW.
+    // CREATE THE MAIN GAME WINDOW.
     sf::VideoMode desktop_resolution = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(desktop_resolution, "Example Game");
 
-    // CREATE A GREEN SQUARE.
-    sf::Vector2<float> player_character_size = sf::Vector2<float>(10, 10);
-    sf::RectangleShape player_character(player_character_size);
-    player_character.setFillColor(sf::Color::Green);
+    // CREATE THE PLAYER.
+	Player player;
+
+	// CREATE THE STAGE HAZARDS.
+	const float middle_of_screen_y_value = desktop_resolution.height / 2;
+	const float middle_of_screen_x_value = desktop_resolution.width / 2;
+	const sf::Vector2<float> middle_of_screen(middle_of_screen_x_value, middle_of_screen_y_value);
+	std::vector<StageHazard> stage_hazards;
+	stage_hazards.emplace_back(HazardType::Cactus, middle_of_screen);
+
+    // CREATE THE WORLD MAP.
+	WorldMap world_map(player, stage_hazards);
 
     // EXECUTE GAME AS LONG AS WINDOW IS OPEN.
     while (window.isOpen())
     {
+        // CONSUME EACH EVENT PRODUCED BY PLAYER INPUT.
         sf::Event current_event;
         while (window.pollEvent(current_event))
         {
@@ -26,42 +36,26 @@ int main()
                 window.close();
                 break;
             }
-            
-            // CHECK IF THE USER PRESSED A KEY.
-            if (current_event.type == sf::Event::KeyPressed)
-            {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-                {
-                    // Move the character up.
-                    player_character.move(0, -1);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-                {
-                    // Move the character left.
-                    player_character.move(-1, 0);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-                {
-                    // Move the character down.
-                    player_character.move(0, 1);
-                }
-                // HANDLE THE KEY PRESS.
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-                {
-                    // Move the character to the right.
-                    player_character.move(1, 0);
-                }
-            }
+
+			// HANDLE USER INPUT.
+			world_map.HandleUserInput(current_event);
         }
+
+		// HANDLE ANY COLLISIONS THAT MAY HAVE OCCURRED.
+		world_map.HandleCollisions();
 
         // CLEAR THE WINDOW BUFFER.
         window.clear();
 
-        // DRAW THE PLAYER CHARACTER.
-        window.draw(player_character);
+        // DRAW THE WORLD MAP.
+        window.draw(world_map);
 
         // DISPLAY THE NEW SCREEN.
         window.display();
+
+		// Limit game to 60 fps.
+		sf::Time time_to_render_one_frame = sf::milliseconds(16);
+		sf::sleep(time_to_render_one_frame);
     }
 
     return 0;

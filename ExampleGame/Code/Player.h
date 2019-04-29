@@ -7,7 +7,7 @@
 class Player : public sf::Drawable
 {
     public:
-        Player();
+        Player(const sf::Vector2<float>& initial_position, const sf::VideoMode& screen_resolution);
         
         void Update();
         
@@ -32,4 +32,7 @@ class Player : public sf::Drawable
         // The image representing the player.
 		// \todo Replace this with sf::Sprite class when we have art.
         sf::RectangleShape Sprite;
+
+		unsigned int ScreenWidth;
+		unsigned int ScreenHeight;
 };

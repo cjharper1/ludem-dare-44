@@ -9,7 +9,9 @@ BoundingBox::BoundingBox(const sf::Vector2<float>& top_left_position, const sf::
 TopLeftCoordinate(top_left_position),
 BottomLeftCoordinate(),
 TopRightCoordinate(),
-BottomRightCoordinate()
+BottomRightCoordinate(),
+Width(dimensions.x),
+Height(dimensions.y)
 {
     // DETERMINE THE BOUNDARIES FOR THIS BOX.
     const float box_height = dimensions.y;

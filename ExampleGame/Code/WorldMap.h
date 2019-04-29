@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics/Drawable.hpp"
+#include "Launcher.h"
 #include "Player.h"
 #include "StageHazard.h"
 
@@ -11,14 +12,16 @@
 class WorldMap : public sf::Drawable
 {
     public:
-		WorldMap(const Player& player, const std::vector<StageHazard>& stage_hazards);
+		WorldMap(const Player& player, const std::vector<StageHazard>& stage_hazards, const Launcher& launcher);
         
 		void HandleUserInput(const sf::Event& user_input);
-        void HandleCollisions();
+		void Update();
     
     private:
+		void HandleCollisions();
 		virtual void draw(sf::RenderTarget& render_target, sf::RenderStates render_states) const;
 
 		Player PlayerCharacter;
 		std::vector<StageHazard> StageHazards;
+		Launcher PlayerLauncher;
 };

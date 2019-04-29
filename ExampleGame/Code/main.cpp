@@ -1,5 +1,6 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/System.hpp"
+#include "Launcher.h"
 #include "Player.h"
 #include "StageHazard.h"
 #include "WorldMap.h"
@@ -7,21 +8,28 @@
 int main()
 {
     // CREATE THE MAIN GAME WINDOW.
-    sf::VideoMode desktop_resolution = sf::VideoMode::getDesktopMode();
-    sf::RenderWindow window(desktop_resolution, "Example Game");
+	sf::VideoMode window_size(1280, 720);
+    sf::RenderWindow window(window_size, "Example Game");
 
     // CREATE THE PLAYER.
-	Player player;
+	// Position the player starting on the bottom left of the screen.
+	// Some padding is applied so the launcher does not cover the player.
+	constexpr unsigned int PADDING = 30;
+	sf::Vector2<float> player_initial_position(PADDING, window_size.height - PADDING);
+	Player player(player_initial_position, window_size);
 
 	// CREATE THE STAGE HAZARDS.
-	const float middle_of_screen_y_value = desktop_resolution.height / 2;
-	const float middle_of_screen_x_value = desktop_resolution.width / 2;
+	const float middle_of_screen_y_value = window_size.height / 2;
+	const float middle_of_screen_x_value = window_size.width / 2;
 	const sf::Vector2<float> middle_of_screen(middle_of_screen_x_value, middle_of_screen_y_value);
 	std::vector<StageHazard> stage_hazards;
 	stage_hazards.emplace_back(HazardType::Cactus, middle_of_screen);
 
+	// CREATE THE LAUNCHER.
+	Launcher launcher(window_size);
+
     // CREATE THE WORLD MAP.
-	WorldMap world_map(player, stage_hazards);
+	WorldMap world_map(player, stage_hazards, launcher);
 
     // EXECUTE GAME AS LONG AS WINDOW IS OPEN.
     while (window.isOpen())
@@ -37,12 +45,20 @@ int main()
                 break;
             }
 
+			// CHECK IF THE USER PRESSED ESCAPE.
+			// This is an alternative way to end the game.
+			if (current_event.type == sf::Event::KeyPressed && current_event.key.code == sf::Keyboard::Escape)
+			{
+				window.close();
+				break;
+			}
+
 			// HANDLE USER INPUT.
 			world_map.HandleUserInput(current_event);
         }
 
-		// HANDLE ANY COLLISIONS THAT MAY HAVE OCCURRED.
-		world_map.HandleCollisions();
+		// UPDATE THE WORLD MAP.
+		world_map.Update();
 
         // CLEAR THE WINDOW BUFFER.
         window.clear();

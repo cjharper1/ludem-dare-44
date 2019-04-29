@@ -7,7 +7,7 @@
 class Player : public sf::Drawable
 {
     public:
-        Player();
+        Player(const sf::Vector2<float>& initial_position, const sf::VideoMode& screen_resolution);
         
         void Update();
         
@@ -47,4 +47,7 @@ class Player : public sf::Drawable
 		// number of game 'ticks' the current animation has been held
 		int frameCount;
 		const int TICKS_PER_FRAME = 4;
+
+		unsigned int ScreenWidth;
+		unsigned int ScreenHeight;
 };

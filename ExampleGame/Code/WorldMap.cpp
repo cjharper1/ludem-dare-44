@@ -5,9 +5,10 @@
 /// \param[in]	stage_hazards - The stage hazards on the world map.
 /// \author	CJ Harper
 /// \date	04/28/2019
-WorldMap::WorldMap(const Player& player, const std::vector<StageHazard>& stage_hazards):
+WorldMap::WorldMap(const Player& player, const std::vector<StageHazard>& stage_hazards, const Launcher& launcher):
 PlayerCharacter(player),
-StageHazards(stage_hazards)
+StageHazards(stage_hazards),
+PlayerLauncher(launcher)
 {}
 
 /// Handles user input. Only keyboard events are supported at this time.
@@ -16,37 +17,26 @@ StageHazards(stage_hazards)
 /// \date	04/28/2019
 void WorldMap::HandleUserInput(const sf::Event& user_input)
 {
-	// \todo Right now this is just moving the character around the screen, but
-	//		this should be updated to handle launching the character once the launching
-	//		mechanic is implemented.
+	const bool move_launcher_to_next_state = (user_input.type == sf::Event::KeyPressed);
+	if (move_launcher_to_next_state)
+	{
+		PlayerLauncher.MoveToNextState(PlayerCharacter);
+	}
+}
 
-	// HANDLE VERTICAL MOVEMENT.
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-	{
-		PlayerCharacter.Velocity.y = -2;
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-	{
-		PlayerCharacter.Velocity.y = 2;
-	}
-	else
-	{
-		PlayerCharacter.Velocity.y = 0;
-	}
+/// Update all items on the map.
+/// \author	CJ Harper
+/// \date	04/28/2019
+void WorldMap::Update()
+{
+	// UPDATE THE PLAYER.
+	PlayerCharacter.Update();
 
-	// HANDLE HORIZONTAL MOVEMENT.
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-	{
-		PlayerCharacter.Velocity.x = -2;
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-	{
-		PlayerCharacter.Velocity.x = 2;
-	}
-	else
-	{
-		PlayerCharacter.Velocity.x = 0;
-	}
+	// UPDATE THE LAUNCHER.
+	PlayerLauncher.Update();
+
+	// HANDLE ANY COLLISIONS THAT HAVE OCCURRED.
+	HandleCollisions();
 }
 
 /// Handles any collisions that are currently occurring.
@@ -54,9 +44,6 @@ void WorldMap::HandleUserInput(const sf::Event& user_input)
 /// \date	04/28/2019
 void WorldMap::HandleCollisions()
 {
-	// UPDATE THE PLAYER.
-	PlayerCharacter.Update();
-
 	// CHECK IF THE PLAYER HAS COLLIDED WITH ANY STAGE HAZARDS.
 	const BoundingBox player_hit_box = PlayerCharacter.GetHitBox();
 	for (const StageHazard& stage_hazard : StageHazards)
@@ -73,10 +60,11 @@ void WorldMap::HandleCollisions()
 
 void WorldMap::draw(sf::RenderTarget& render_target, sf::RenderStates render_states) const
 {
-	// DRAW THE CHARACTER AND STAGE HAZARDS.
+	// DRAW THE CHARACTER, STAGE HAZARDS, AND LAUNCHER.
 	render_target.draw(PlayerCharacter);
 	for (const StageHazard& stage_hazard : StageHazards)
 	{
 		render_target.draw(stage_hazard);
 	}
+	render_target.draw(PlayerLauncher);
 }

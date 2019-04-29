@@ -1,7 +1,16 @@
 #! /usr/bin/env python
 def build(bld):
+    # COPY ALL ASSETS TO THE BUILD FOLDER.
+    source_player_sprite = bld.path.get_src().find_node('Assets/player.png')
+    target_player_sprite = bld.path.get_bld().make_node('Assets/player.png')
+    bld.copy(
+        source = [source_player_sprite],
+        target = [target_player_sprite],
+        name = 'CopyAssets')
+    
+    # COMPILE THE GAME.
     bld.program(
-        use = ['sfml', 'Box2D'],
+        use = ['sfml', 'Box2D', 'CopyAssets'],
         source = bld.path.ant_glob('Code/**/*.cpp'),
         includes = 'Code',
         target = 'ExampleGame')

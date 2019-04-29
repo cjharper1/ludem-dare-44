@@ -15,7 +15,7 @@
         <PlatformToolset>v142</PlatformToolset>
         <TargetPath>{{ project.GetOutputFile().abspath() }}</TargetPath>
         <LocalDebuggerWorkingDirectory>
-            {{ project.GetDebugDir().abspath() }}
+            {{ project.GetOutputDir().abspath() }}
         </LocalDebuggerWorkingDirectory>
     </PropertyGroup>
     <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='{{ project.GetBuildVariant() }}|Win32'">

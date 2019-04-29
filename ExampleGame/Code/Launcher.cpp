@@ -13,18 +13,18 @@ ScreenHeight(screen_size.height)
 {
     // CREATE THE POWER METER.
 	// The power meter will be at the bottom of the screen and extend the full width of the screen.
-	// Some padding is added to ensure it does not overflow off the screen.
 	// The power meter starts with no width and the width will go up and down to visually indicate the power going up and down.
 	// \todo Make this look better and position it better if there is time.
-	const unsigned int PADDING = 20;
-	PowerMeter.setPosition(sf::Vector2<float>(0, ScreenHeight - PADDING));
-	PowerMeter.setSize(sf::Vector2<float>(20, 20));
+	constexpr unsigned int POWER_METER_HEIGHT = 10;
+	PowerMeter.setPosition(sf::Vector2<float>(0, ScreenHeight - POWER_METER_HEIGHT));
+	PowerMeter.setSize(sf::Vector2<float>(0, POWER_METER_HEIGHT));
 	PowerMeter.setFillColor(sf::Color::Green);
 
 	// CREATE THE ANGLE METER.
-	AngleMeter.setPosition(sf::Vector2<float>(0, ScreenHeight - 5));
+    constexpr unsigned int ANGLE_METER_HEIGHT = 5;
+	AngleMeter.setPosition(sf::Vector2<float>(0, ScreenHeight - ANGLE_METER_HEIGHT));
 	float half_screen_size = (ScreenHeight / 2);
-	AngleMeter.setSize(sf::Vector2<float>(half_screen_size, 5));
+	AngleMeter.setSize(sf::Vector2<float>(half_screen_size, ANGLE_METER_HEIGHT));
 	AngleMeter.setFillColor(sf::Color::Green);
 }
 

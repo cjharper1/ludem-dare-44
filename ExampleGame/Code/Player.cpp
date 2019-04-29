@@ -1,23 +1,23 @@
 #include "Player.h"
 
 /// Constructor.
-/// \todo The hitbox is arbitrarily being set to 10 by 10 right now as a placeholder. This will need to be updated when we
-///		figure out how large the player will be.
 /// \author CJ Harper
 /// \date   04/28/2019
 Player::Player():
 Velocity(sf::Vector2<float>(0,0)),
 AngleOfRotationInDegrees(0),
-HitBox(sf::Vector2<float>(0,0), sf::Vector2<float>(10,10)),
+HitBox(sf::Vector2<float>(0,0), sf::Vector2<float>(24,24)),
 Sprite()
 {
-    // SET THE SPRITE FOR THIS CHARACTER.
-    // \todo Use real art instead of a placeholder.
-    constexpr unsigned int HEIGHT_IN_PIXELS = 10;
-    constexpr unsigned int WIDTH_IN_PIXELS = 10;
-    sf::Vector2<float> placeholder_size(HEIGHT_IN_PIXELS, WIDTH_IN_PIXELS);
-    sf::RectangleShape placeholder_art(placeholder_size);
-    Sprite = placeholder_art;
+
+	Texture.loadFromFile("Assets/player.png");
+	TextureRect = sf::IntRect(0, HEIGHT_IN_PIXELS * idle, WIDTH_IN_PIXELS, HEIGHT_IN_PIXELS);
+	Sprite.setTexture(Texture);
+	Sprite.setTextureRect(TextureRect);
+
+	CurrentAnimation = idle;
+	PreviousAnimation = idle;
+	frameCount = 0;
 }
 
 /// Updates properties of the player such as position, velocity, and rotation. 
@@ -52,11 +52,32 @@ void Player::Update()
     // APPLY THE CURRENT ROTATION TO THE PLAYER SPRITE.
     Sprite.rotate(AngleOfRotationInDegrees);
 
+	// Animation logic
+	if (CurrentAnimation != PreviousAnimation)
+	{
+		frameCount = 0;
+		TextureRect.left = 0;
+		TextureRect.top = CurrentAnimation * HEIGHT_IN_PIXELS;
+		PreviousAnimation = CurrentAnimation;
+	}
+	else
+	{
+		frameCount++;
+		if (frameCount == TICKS_PER_FRAME)
+		{
+			TextureRect.left = (TextureRect.left + WIDTH_IN_PIXELS) % (WIDTH_IN_PIXELS * 4);
+			frameCount = 0;
+		}
+	}
+
+	Sprite.setTextureRect(TextureRect);
+
 	// \todo Apply gravity or some sort of velocity decay?
 }
 
 void Player::draw(sf::RenderTarget& render_target, sf::RenderStates render_states) const
 {
 	// DRAW THE CHARACTER TO THE SCREEN.
+
 	render_target.draw(Sprite);
 }

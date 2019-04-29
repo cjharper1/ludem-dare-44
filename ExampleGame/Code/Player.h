@@ -22,6 +22,8 @@ class Player : public sf::Drawable
 
 		/// \return The player's hit box.
 		BoundingBox GetHitBox() const { return HitBox; }
+		const unsigned int HEIGHT_IN_PIXELS = 24;
+		const unsigned int WIDTH_IN_PIXELS = 24;
 
     private:
 		virtual void draw(sf::RenderTarget& render_target, sf::RenderStates render_states) const;
@@ -29,7 +31,20 @@ class Player : public sf::Drawable
         // The hit box for the player.
 		BoundingBox HitBox;
 
+		// The sprite sheet for the player
+		sf::Texture Texture;
+
+		// Box within the sheet for the sprite
+		sf::IntRect TextureRect;
+
         // The image representing the player.
-		// \todo Replace this with sf::Sprite class when we have art.
-        sf::RectangleShape Sprite;
+        sf::Sprite Sprite;
+
+		// Information tracked for animation purposes
+		enum Animation {hit = 0, launch = 1, boost = 2, idle = 3};
+		Animation CurrentAnimation;
+		Animation PreviousAnimation;
+		// number of game 'ticks' the current animation has been held
+		int frameCount;
+		const int TICKS_PER_FRAME = 4;
 };

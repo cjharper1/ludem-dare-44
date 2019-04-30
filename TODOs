@@ -1,0 +1,6 @@
+1. Add sprites for spikes, cactus, etc.
+2. Make spikes bloody when player hits them.
+3. Make spikes change player velocity when hit.
+4. Play hit animation for player when hitting spikes.
+5. Level layouts.
+6. Score system.

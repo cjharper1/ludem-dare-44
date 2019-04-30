@@ -4,3 +4,9 @@
 4. Play hit animation for player when hitting spikes.
 5. Level layouts.
 6. Score system.
+
+Long term goals:
+1. Implement class to handle animations.
+    This would contain the frames that make up an animation and an amount of ticks to play each frame of the animation.
+2. Some sort of class/method for swapping current animation of an object by passing an enum value or something.
+    This could allow users to queue animations to play after current animation is finished (i.e. after player launch animation finishes, switch to the boost animation).

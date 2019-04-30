@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 def build(bld):
     # COPY ALL ASSETS TO THE BUILD FOLDER.
-    source_player_sprite = bld.path.get_src().find_node('Assets/player.png')
-    target_player_sprite = bld.path.get_bld().make_node('Assets/player.png')
+    source_assets = bld.path.ant_glob('Assets/*.png')
+    target_assets = []
+    for source_asset in source_assets:
+        target_assets.append(source_asset.get_bld())
     bld.copy(
-        source = [source_player_sprite],
-        target = [target_player_sprite],
+        source = source_assets,
+        target = target_assets,
         name = 'CopyAssets')
     
     # COMPILE THE GAME.

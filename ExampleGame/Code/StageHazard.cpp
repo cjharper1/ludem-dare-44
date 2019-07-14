@@ -59,6 +59,13 @@ void StageHazard::UpdatePlayerMovement(Player& player) const
     // \todo Figure out values for these.
     switch (Type)
     {
+		case (HazardType::Wall):
+		{
+			player.Velocity = sf::Vector2<float>(0, 0);
+			player.AngleOfRotationInDegrees = 0;
+		
+			break;
+		}
         case (HazardType::Cactus):
         {
 			player.Velocity = sf::Vector2<float>(0, 0);

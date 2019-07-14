@@ -24,6 +24,11 @@ Sprite()
     Sprite = placeholder_art;
     switch (Type)
     {
+		case (HazardType::Wall):
+		{
+			Sprite = placeholder_art;
+			break;
+		}
         case (HazardType::Cactus):
         {
             Sprite = placeholder_art;

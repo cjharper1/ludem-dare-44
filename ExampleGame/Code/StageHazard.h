@@ -7,6 +7,7 @@
 /// Represents the various types of hazards that can be encountered.
 enum HazardType
 {
+	Wall,
     Cactus,
     Scissors,
     Spike
